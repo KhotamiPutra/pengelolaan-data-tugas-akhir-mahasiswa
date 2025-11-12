@@ -38,23 +38,29 @@ Partial Class data_mahasiswa
         Me.btnSimpan = New System.Windows.Forms.Button()
         Me.txtnim = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'DataGridView1
         '
         Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.DataGridView1.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.DataGridView1.Location = New System.Drawing.Point(0, 505)
+        Me.DataGridView1.Location = New System.Drawing.Point(0, 1110)
+        Me.DataGridView1.Margin = New System.Windows.Forms.Padding(5)
         Me.DataGridView1.Name = "DataGridView1"
         Me.DataGridView1.RowHeadersWidth = 62
         Me.DataGridView1.RowTemplate.Height = 28
-        Me.DataGridView1.Size = New System.Drawing.Size(933, 168)
+        Me.DataGridView1.Size = New System.Drawing.Size(2141, 10)
         Me.DataGridView1.TabIndex = 3
         '
         'Panel1
         '
+        Me.Panel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(45, Byte), Integer), CType(CType(50, Byte), Integer), CType(CType(80, Byte), Integer))
+        Me.Panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.Panel1.Controls.Add(Me.PictureBox1)
         Me.Panel1.Controls.Add(Me.btnEdit)
         Me.Panel1.Controls.Add(Me.txttelp)
         Me.Panel1.Controls.Add(Me.Label6)
@@ -71,24 +77,31 @@ Partial Class data_mahasiswa
         Me.Panel1.Controls.Add(Me.Label1)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Panel1.Location = New System.Drawing.Point(0, 0)
+        Me.Panel1.Margin = New System.Windows.Forms.Padding(5)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(933, 505)
+        Me.Panel1.Size = New System.Drawing.Size(2141, 1110)
         Me.Panel1.TabIndex = 4
         '
         'btnEdit
         '
-        Me.btnEdit.Location = New System.Drawing.Point(524, 292)
+        Me.btnEdit.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.btnEdit.Font = New System.Drawing.Font("Cooper Black", 8.25!)
+        Me.btnEdit.ForeColor = System.Drawing.Color.White
+        Me.btnEdit.Location = New System.Drawing.Point(1301, 645)
+        Me.btnEdit.Margin = New System.Windows.Forms.Padding(5)
         Me.btnEdit.Name = "btnEdit"
-        Me.btnEdit.Size = New System.Drawing.Size(154, 63)
+        Me.btnEdit.Size = New System.Drawing.Size(274, 98)
         Me.btnEdit.TabIndex = 29
         Me.btnEdit.Text = "Edit"
-        Me.btnEdit.UseVisualStyleBackColor = True
+        Me.btnEdit.UseVisualStyleBackColor = False
         '
         'txttelp
         '
-        Me.txttelp.Location = New System.Drawing.Point(634, 240)
+        Me.txttelp.BackColor = System.Drawing.SystemColors.InactiveCaption
+        Me.txttelp.Location = New System.Drawing.Point(1301, 316)
+        Me.txttelp.Margin = New System.Windows.Forms.Padding(5)
         Me.txttelp.Name = "txttelp"
-        Me.txttelp.Size = New System.Drawing.Size(258, 26)
+        Me.txttelp.Size = New System.Drawing.Size(456, 38)
         Me.txttelp.TabIndex = 28
         '
         'Label6
@@ -96,33 +109,43 @@ Partial Class data_mahasiswa
         Me.Label6.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(547, 246)
+        Me.Label6.Font = New System.Drawing.Font("Cooper Black", 8.1!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Label6.Location = New System.Drawing.Point(1085, 322)
+        Me.Label6.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(81, 20)
+        Me.Label6.Size = New System.Drawing.Size(161, 32)
         Me.Label6.TabIndex = 27
         Me.Label6.Text = "No Telpon"
         '
         'txtemail
         '
-        Me.txtemail.Location = New System.Drawing.Point(317, 237)
+        Me.txtemail.BackColor = System.Drawing.SystemColors.InactiveCaption
+        Me.txtemail.Location = New System.Drawing.Point(564, 316)
+        Me.txtemail.Margin = New System.Windows.Forms.Padding(5)
         Me.txtemail.Name = "txtemail"
-        Me.txtemail.Size = New System.Drawing.Size(184, 26)
+        Me.txtemail.Size = New System.Drawing.Size(412, 38)
         Me.txtemail.TabIndex = 26
         '
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(262, 240)
+        Me.Label5.Font = New System.Drawing.Font("Cooper Black", 8.25!)
+        Me.Label5.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Label5.Location = New System.Drawing.Point(271, 322)
+        Me.Label5.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(48, 20)
+        Me.Label5.Size = New System.Drawing.Size(96, 32)
         Me.Label5.TabIndex = 25
         Me.Label5.Text = "Email"
         '
         'txtsemester
         '
-        Me.txtsemester.Location = New System.Drawing.Point(634, 168)
+        Me.txtsemester.BackColor = System.Drawing.SystemColors.InactiveCaption
+        Me.txtsemester.Location = New System.Drawing.Point(1301, 229)
+        Me.txtsemester.Margin = New System.Windows.Forms.Padding(5)
         Me.txtsemester.Name = "txtsemester"
-        Me.txtsemester.Size = New System.Drawing.Size(258, 26)
+        Me.txtsemester.Size = New System.Drawing.Size(456, 38)
         Me.txtsemester.TabIndex = 24
         '
         'Label4
@@ -130,34 +153,44 @@ Partial Class data_mahasiswa
         Me.Label4.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(552, 171)
+        Me.Label4.Font = New System.Drawing.Font("Cooper Black", 8.1!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Label4.Location = New System.Drawing.Point(1085, 235)
+        Me.Label4.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(78, 20)
+        Me.Label4.Size = New System.Drawing.Size(145, 32)
         Me.Label4.TabIndex = 23
         Me.Label4.Text = "Semester"
         '
         'cmbprodi
         '
+        Me.cmbprodi.BackColor = System.Drawing.SystemColors.InactiveCaption
         Me.cmbprodi.FormattingEnabled = True
-        Me.cmbprodi.Location = New System.Drawing.Point(317, 171)
+        Me.cmbprodi.Location = New System.Drawing.Point(564, 228)
+        Me.cmbprodi.Margin = New System.Windows.Forms.Padding(5)
         Me.cmbprodi.Name = "cmbprodi"
-        Me.cmbprodi.Size = New System.Drawing.Size(184, 28)
+        Me.cmbprodi.Size = New System.Drawing.Size(412, 39)
         Me.cmbprodi.TabIndex = 22
         '
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(201, 171)
+        Me.Label3.Font = New System.Drawing.Font("Cooper Black", 8.25!)
+        Me.Label3.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Label3.Location = New System.Drawing.Point(271, 228)
+        Me.Label3.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(110, 20)
+        Me.Label3.Size = New System.Drawing.Size(224, 32)
         Me.Label3.TabIndex = 21
         Me.Label3.Text = "Program Studi"
         '
         'txtnama
         '
-        Me.txtnama.Location = New System.Drawing.Point(634, 110)
+        Me.txtnama.BackColor = System.Drawing.SystemColors.InactiveCaption
+        Me.txtnama.Location = New System.Drawing.Point(1301, 153)
+        Me.txtnama.Margin = New System.Windows.Forms.Padding(5)
         Me.txtnama.Name = "txtnama"
-        Me.txtnama.Size = New System.Drawing.Size(258, 26)
+        Me.txtnama.Size = New System.Drawing.Size(456, 38)
         Me.txtnama.TabIndex = 20
         '
         'Label2
@@ -165,49 +198,73 @@ Partial Class data_mahasiswa
         Me.Label2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(577, 110)
+        Me.Label2.Font = New System.Drawing.Font("Cooper Black", 8.1!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label2.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Label2.Location = New System.Drawing.Point(1085, 159)
+        Me.Label2.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(51, 20)
+        Me.Label2.Size = New System.Drawing.Size(96, 32)
         Me.Label2.TabIndex = 19
         Me.Label2.Text = "Nama"
         '
         'btnSimpan
         '
-        Me.btnSimpan.Location = New System.Drawing.Point(346, 291)
+        Me.btnSimpan.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.btnSimpan.Font = New System.Drawing.Font("Cooper Black", 8.25!)
+        Me.btnSimpan.ForeColor = System.Drawing.Color.White
+        Me.btnSimpan.Location = New System.Drawing.Point(700, 645)
+        Me.btnSimpan.Margin = New System.Windows.Forms.Padding(5)
         Me.btnSimpan.Name = "btnSimpan"
-        Me.btnSimpan.Size = New System.Drawing.Size(155, 64)
+        Me.btnSimpan.Size = New System.Drawing.Size(276, 99)
         Me.btnSimpan.TabIndex = 18
         Me.btnSimpan.Text = "Simpan"
-        Me.btnSimpan.UseVisualStyleBackColor = True
+        Me.btnSimpan.UseVisualStyleBackColor = False
         '
         'txtnim
         '
-        Me.txtnim.Location = New System.Drawing.Point(317, 108)
+        Me.txtnim.BackColor = System.Drawing.SystemColors.InactiveCaption
+        Me.txtnim.Location = New System.Drawing.Point(564, 145)
+        Me.txtnim.Margin = New System.Windows.Forms.Padding(5)
         Me.txtnim.Name = "txtnim"
-        Me.txtnim.Size = New System.Drawing.Size(176, 26)
+        Me.txtnim.Size = New System.Drawing.Size(412, 38)
         Me.txtnim.TabIndex = 17
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(262, 110)
+        Me.Label1.Font = New System.Drawing.Font("Cooper Black", 8.25!)
+        Me.Label1.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Label1.Location = New System.Drawing.Point(271, 151)
+        Me.Label1.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(38, 20)
+        Me.Label1.Size = New System.Drawing.Size(74, 32)
         Me.Label1.TabIndex = 16
         Me.Label1.Text = "NIM"
         '
+        'PictureBox1
+        '
+        Me.PictureBox1.Image = Global.projek_kelompok.My.Resources.Resources.data_mhs_removebg_preview
+        Me.PictureBox1.Location = New System.Drawing.Point(1997, 36)
+        Me.PictureBox1.Name = "PictureBox1"
+        Me.PictureBox1.Size = New System.Drawing.Size(797, 870)
+        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.PictureBox1.TabIndex = 30
+        Me.PictureBox1.TabStop = False
+        '
         'data_mahasiswa
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(16.0!, 31.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CausesValidation = False
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.DataGridView1)
+        Me.Margin = New System.Windows.Forms.Padding(5)
         Me.Name = "data_mahasiswa"
-        Me.Size = New System.Drawing.Size(933, 673)
+        Me.Size = New System.Drawing.Size(2141, 1120)
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -227,4 +284,5 @@ Partial Class data_mahasiswa
     Friend WithEvents btnSimpan As Button
     Friend WithEvents txtnim As TextBox
     Friend WithEvents Label1 As Label
+    Friend WithEvents PictureBox1 As PictureBox
 End Class
