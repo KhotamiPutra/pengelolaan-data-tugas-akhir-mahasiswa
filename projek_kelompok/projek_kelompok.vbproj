@@ -105,10 +105,40 @@
       <DependentUpon>Form1.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Form2.Designer.vb">
+      <DependentUpon>Form2.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Form2.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form3.Designer.vb">
+      <DependentUpon>Form3.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Form3.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formdosen.Designer.vb">
+      <DependentUpon>Formdosen.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formdosen.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLogin.Designer.vb">
+      <DependentUpon>FormLogin.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FormLogin.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormDashboard.Designer.vb">
       <DependentUpon>FormDashboard.vb</DependentUpon>
     </Compile>
     <Compile Include="FormDashboard.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formmhs.Designer.vb">
+      <DependentUpon>Formmhs.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formmhs.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="laporan.Designer.vb">
@@ -151,8 +181,23 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Form2.resx">
+      <DependentUpon>Form2.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form3.resx">
+      <DependentUpon>Form3.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formdosen.resx">
+      <DependentUpon>Formdosen.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormLogin.resx">
+      <DependentUpon>FormLogin.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormDashboard.resx">
       <DependentUpon>FormDashboard.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formmhs.resx">
+      <DependentUpon>Formmhs.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="laporan.resx">
       <DependentUpon>laporan.vb</DependentUpon>
