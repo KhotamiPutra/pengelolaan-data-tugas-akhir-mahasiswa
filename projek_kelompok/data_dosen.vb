@@ -158,7 +158,7 @@ Public Class data_dosen
 
     End Sub
 
-    Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
+    Private Sub btnEdit_Click(sender As Object, e As EventArgs) 
 
     End Sub
 
