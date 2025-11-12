@@ -1,4 +1,5 @@
 ﻿Imports System.Data.Odbc
+
 Public Class data_mahasiswa
     Dim cmd As OdbcCommand
     Dim da As OdbcDataAdapter
@@ -16,17 +17,31 @@ Public Class data_mahasiswa
 
     ' =============== RESPONSIF ===================
     Private Sub MakeResponsive()
-        ' Agar semua komponen menyesuaikan ukuran form/panel
+        ' Setiap kontrol menyesuaikan ukuran form
         For Each ctrl As Control In Me.Controls
             ctrl.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
         Next
+
+        ' DataGridView menyesuaikan penuh layar (atas-bawah, kiri-kanan)
         DataGridView1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+        ' Pengaturan tambahan agar grid menyesuaikan isi layar
+        DataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        DataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+        DataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+        DataGridView1.MultiSelect = False
+        DataGridView1.AllowUserToResizeColumns = False
+        DataGridView1.AllowUserToResizeRows = False
+        DataGridView1.ReadOnly = True
+        DataGridView1.RowHeadersVisible = False
+        DataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True
     End Sub
+
 
     ' =============== COMBOBOX PRODI ===================
     Private Sub LoadProdi()
         cmbprodi.Items.Clear()
-        cmd = New OdbcCommand("SELECT * FROM prodi", conn)
+        cmd = New OdbcCommand("SELECT * FROM prodi ORDER BY nama_prodi ASC", conn)
         dr = cmd.ExecuteReader()
         While dr.Read()
             cmbprodi.Items.Add(New With {.Text = dr("nama_prodi").ToString(), .Value = dr("id_prodi")})
@@ -36,57 +51,92 @@ Public Class data_mahasiswa
         dr.Close()
     End Sub
 
+
     ' =============== LOAD DATA GRID ===================
     Private Sub LoadData()
-        da = New OdbcDataAdapter("SELECT m.nim, m.nama_mahasiswa, p.nama_prodi, m.semester, m.email, m.no_telp FROM mahasiswa m JOIN prodi p ON m.prodi=p.id_prodi", conn)
+        da = New OdbcDataAdapter("
+            SELECT m.nim, 
+                   m.nama_mahasiswa, 
+                   p.nama_prodi, 
+                   m.semester, 
+                   m.email, 
+                   m.no_telp 
+            FROM mahasiswa m 
+            JOIN prodi p ON m.prodi = p.id_prodi
+            ORDER BY m.nim ASC", conn)
+
         ds = New DataSet
         da.Fill(ds, "mahasiswa")
         DataGridView1.DataSource = ds.Tables("mahasiswa")
 
-        ' Tambah kolom tombol hapus
+        ' Ubah header kolom agar lebih rapi
+        DataGridView1.Columns("nim").HeaderText = "NIM"
+        DataGridView1.Columns("nama_mahasiswa").HeaderText = "Nama Mahasiswa"
+        DataGridView1.Columns("nama_prodi").HeaderText = "Program Studi"
+        DataGridView1.Columns("semester").HeaderText = "Semester"
+        DataGridView1.Columns("email").HeaderText = "Email"
+        DataGridView1.Columns("no_telp").HeaderText = "No. Telepon"
+
+        ' Jika kolom tombol hapus belum ada, tambahkan
         If DataGridView1.Columns("btnHapus") Is Nothing Then
             Dim btnDelete As New DataGridViewButtonColumn()
             btnDelete.Name = "btnHapus"
             btnDelete.HeaderText = "Aksi"
             btnDelete.Text = "Hapus"
             btnDelete.UseColumnTextForButtonValue = True
+            btnDelete.Width = 80
             DataGridView1.Columns.Add(btnDelete)
         End If
+
+        ' Agar tabel langsung menyesuaikan layar
+        DataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
     End Sub
 
-    ' =============== SIMPAN DATA ===================
+
+    ' =============== SIMPAN / EDIT DATA ===================
     Private Sub BtnSimpan_Click(sender As Object, e As EventArgs) Handles btnSimpan.Click
-        If selectedNIM = "" Then
-            ' Simpan baru
+        Try
+            If txtnim.Text.Trim() = "" Or txtnama.Text.Trim() = "" Then
+                MessageBox.Show("NIM dan Nama tidak boleh kosong!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Return
+            End If
+
             Dim prodiId = DirectCast(cmbprodi.SelectedItem, Object).Value
-            cmd = New OdbcCommand("INSERT INTO mahasiswa (nim, nama_mahasiswa, prodi, semester, email, no_telp) VALUES (?,?,?,?,?,?)", conn)
-            cmd.Parameters.AddWithValue("@nim", txtnim.Text)
-            cmd.Parameters.AddWithValue("@nama", txtnama.Text)
-            cmd.Parameters.AddWithValue("@prodi", prodiId)
-            cmd.Parameters.AddWithValue("@semester", txtsemester.Text)
-            cmd.Parameters.AddWithValue("@email", txtemail.Text)
-            cmd.Parameters.AddWithValue("@telp", txttelp.Text)
-            cmd.ExecuteNonQuery()
-            MessageBox.Show("Data berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        Else
-            ' Konfirmasi edit
-            If MessageBox.Show("Apakah kamu yakin ingin mengubah data ini?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                Dim prodiId = DirectCast(cmbprodi.SelectedItem, Object).Value
-                cmd = New OdbcCommand("UPDATE mahasiswa SET nama_mahasiswa=?, prodi=?, semester=?, email=?, no_telp=? WHERE nim=?", conn)
+
+            If selectedNIM = "" Then
+                ' === SIMPAN BARU ===
+                cmd = New OdbcCommand("INSERT INTO mahasiswa (nim, nama_mahasiswa, prodi, semester, email, no_telp) VALUES (?,?,?,?,?,?)", conn)
+                cmd.Parameters.AddWithValue("@nim", txtnim.Text)
                 cmd.Parameters.AddWithValue("@nama", txtnama.Text)
                 cmd.Parameters.AddWithValue("@prodi", prodiId)
                 cmd.Parameters.AddWithValue("@semester", txtsemester.Text)
                 cmd.Parameters.AddWithValue("@email", txtemail.Text)
                 cmd.Parameters.AddWithValue("@telp", txttelp.Text)
-                cmd.Parameters.AddWithValue("@nim", selectedNIM)
                 cmd.ExecuteNonQuery()
-                MessageBox.Show("Data berhasil diubah!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("Data mahasiswa berhasil disimpan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                ' === EDIT DATA ===
+                If MessageBox.Show("Apakah kamu yakin ingin mengubah data ini?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                    cmd = New OdbcCommand("UPDATE mahasiswa SET nama_mahasiswa=?, prodi=?, semester=?, email=?, no_telp=? WHERE nim=?", conn)
+                    cmd.Parameters.AddWithValue("@nama", txtnama.Text)
+                    cmd.Parameters.AddWithValue("@prodi", prodiId)
+                    cmd.Parameters.AddWithValue("@semester", txtsemester.Text)
+                    cmd.Parameters.AddWithValue("@email", txtemail.Text)
+                    cmd.Parameters.AddWithValue("@telp", txttelp.Text)
+                    cmd.Parameters.AddWithValue("@nim", selectedNIM)
+                    cmd.ExecuteNonQuery()
+                    MessageBox.Show("Data mahasiswa berhasil diubah!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
             End If
-        End If
 
-        ClearForm()
-        LoadData()
+            ClearForm()
+            LoadData()
+
+        Catch ex As Exception
+            MessageBox.Show("Terjadi kesalahan: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
+
 
     ' =============== HAPUS DATA ===================
     Private Sub DataGridView1_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView1.CellContentClick
@@ -97,9 +147,11 @@ Public Class data_mahasiswa
                 cmd.Parameters.AddWithValue("@nim", nim)
                 cmd.ExecuteNonQuery()
                 LoadData()
+                MessageBox.Show("Data berhasil dihapus!", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
         End If
     End Sub
+
 
     ' =============== KLIK DATA GRID UNTUK EDIT ===================
     Private Sub DataGridView1_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView1.CellClick
@@ -114,6 +166,7 @@ Public Class data_mahasiswa
         End If
     End Sub
 
+
     ' =============== CLEAR FORM ===================
     Private Sub ClearForm()
         txtnim.Clear()
@@ -123,61 +176,5 @@ Public Class data_mahasiswa
         txttelp.Clear()
         cmbprodi.SelectedIndex = -1
         selectedNIM = ""
-    End Sub
-
-    Private Sub Panel1_Paint(sender As Object, e As PaintEventArgs) Handles Panel1.Paint
-
-    End Sub
-
-    Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
-
-    End Sub
-
-    Private Sub txttelp_TextChanged(sender As Object, e As EventArgs) Handles txttelp.TextChanged
-
-    End Sub
-
-    Private Sub Label6_Click(sender As Object, e As EventArgs) Handles Label6.Click
-
-    End Sub
-
-    Private Sub txtemail_TextChanged(sender As Object, e As EventArgs) Handles txtemail.TextChanged
-
-    End Sub
-
-    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
-
-    End Sub
-
-    Private Sub txtsemester_TextChanged(sender As Object, e As EventArgs) Handles txtsemester.TextChanged
-
-    End Sub
-
-    Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
-
-    End Sub
-
-    Private Sub cmbprodi_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbprodi.SelectedIndexChanged
-
-    End Sub
-
-    Private Sub Label3_Click(sender As Object, e As EventArgs) Handles Label3.Click
-
-    End Sub
-
-    Private Sub txtnama_TextChanged(sender As Object, e As EventArgs) Handles txtnama.TextChanged
-
-    End Sub
-
-    Private Sub Label2_Click(sender As Object, e As EventArgs) Handles Label2.Click
-
-    End Sub
-
-    Private Sub txtnim_TextChanged(sender As Object, e As EventArgs) Handles txtnim.TextChanged
-
-    End Sub
-
-    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
-
     End Sub
 End Class
