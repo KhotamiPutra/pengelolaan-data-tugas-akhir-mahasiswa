@@ -21,13 +21,18 @@ Public Class Form2
                 MessageBox.Show("Login berhasil! Selamat datang, " & dr("nama_mahasiswa").ToString(), "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                 Dim namamhs As String = dr("nama_mahasiswa").ToString()
+                Dim nimmhs As String = dr("nim").ToString()
+
+                ' Kirim data ke Formmhs
                 Dim dashboardmhs As New Formmhs()
-                dashboardmhs.SetWelcomeMessage(namamhs)
+                dashboardmhs.nim_login = nimmhs
                 dashboardmhs.Show()
+
                 Me.Hide()
             Else
                 MessageBox.Show("NIM atau Username salah!", "Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End If
+
 
             dr.Close()
             conn.Close()
