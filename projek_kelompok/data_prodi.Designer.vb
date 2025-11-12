@@ -47,7 +47,7 @@ Partial Class data_prodi
         '
         'btnEdit
         '
-        Me.btnEdit.Location = New System.Drawing.Point(932, 453)
+        Me.btnEdit.Location = New System.Drawing.Point(1128, 453)
         Me.btnEdit.Margin = New System.Windows.Forms.Padding(5)
         Me.btnEdit.Name = "btnEdit"
         Me.btnEdit.Size = New System.Drawing.Size(274, 98)
@@ -60,7 +60,7 @@ Partial Class data_prodi
         Me.txtNamaProdi.Location = New System.Drawing.Point(814, 312)
         Me.txtNamaProdi.Margin = New System.Windows.Forms.Padding(5)
         Me.txtNamaProdi.Name = "txtNamaProdi"
-        Me.txtNamaProdi.Size = New System.Drawing.Size(392, 38)
+        Me.txtNamaProdi.Size = New System.Drawing.Size(588, 38)
         Me.txtNamaProdi.TabIndex = 20
         '
         'Label2
@@ -68,7 +68,7 @@ Partial Class data_prodi
         Me.Label2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(609, 315)
+        Me.Label2.Location = New System.Drawing.Point(576, 318)
         Me.Label2.Margin = New System.Windows.Forms.Padding(5, 0, 5, 0)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(163, 32)
@@ -77,7 +77,7 @@ Partial Class data_prodi
         '
         'btnSimpan
         '
-        Me.btnSimpan.Location = New System.Drawing.Point(615, 451)
+        Me.btnSimpan.Location = New System.Drawing.Point(582, 453)
         Me.btnSimpan.Margin = New System.Windows.Forms.Padding(5)
         Me.btnSimpan.Name = "btnSimpan"
         Me.btnSimpan.Size = New System.Drawing.Size(276, 99)
