@@ -30,5 +30,10 @@
         ShowPage(New arsip())
     End Sub
 
-
+    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
+        Dim login As New FormLogin()
+        login.StartPosition = FormStartPosition.CenterScreen
+        login.Show()
+        Me.Close()
+    End Sub
 End Class

@@ -37,6 +37,7 @@ Partial Class Formmhs
         Me.Label1 = New System.Windows.Forms.Label()
         Me.dashboard = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.sidebar.SuspendLayout()
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox5, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -57,6 +58,7 @@ Partial Class Formmhs
         'sidebar
         '
         Me.sidebar.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.sidebar.Controls.Add(Me.Label5)
         Me.sidebar.Controls.Add(Me.PictureBox6)
         Me.sidebar.Controls.Add(Me.Label4)
         Me.sidebar.Controls.Add(Me.PictureBox5)
@@ -196,6 +198,18 @@ Partial Class Formmhs
         Me.PictureBox1.TabIndex = 0
         Me.PictureBox1.TabStop = False
         '
+        'Label5
+        '
+        Me.Label5.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.Location = New System.Drawing.Point(34, 649)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(116, 32)
+        Me.Label5.TabIndex = 11
+        Me.Label5.Text = "Log out"
+        '
         'Formmhs
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
@@ -232,4 +246,5 @@ Partial Class Formmhs
     Friend WithEvents Label1 As Label
     Friend WithEvents dashboard As Label
     Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents Label5 As Label
 End Class

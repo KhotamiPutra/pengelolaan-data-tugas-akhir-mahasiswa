@@ -25,6 +25,8 @@ Partial Class FormDashboard
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FormDashboard))
         Me.PageSetupDialog1 = New System.Windows.Forms.PageSetupDialog()
         Me.sidebar = New System.Windows.Forms.Panel()
+        Me.PictureBox7 = New System.Windows.Forms.PictureBox()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.PictureBox6 = New System.Windows.Forms.PictureBox()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.PictureBox5 = New System.Windows.Forms.PictureBox()
@@ -37,21 +39,21 @@ Partial Class FormDashboard
         Me.dashboard = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.PictureBox7 = New System.Windows.Forms.PictureBox()
-        Me.Label5 = New System.Windows.Forms.Label()
+        Me.Label6 = New System.Windows.Forms.Label()
         Me.sidebar.SuspendLayout()
+        CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox5, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox4, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'sidebar
         '
         Me.sidebar.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.sidebar.Controls.Add(Me.Label6)
         Me.sidebar.Controls.Add(Me.PictureBox7)
         Me.sidebar.Controls.Add(Me.Label5)
         Me.sidebar.Controls.Add(Me.PictureBox6)
@@ -68,8 +70,30 @@ Partial Class FormDashboard
         Me.sidebar.Dock = System.Windows.Forms.DockStyle.Left
         Me.sidebar.Location = New System.Drawing.Point(0, 0)
         Me.sidebar.Name = "sidebar"
-        Me.sidebar.Size = New System.Drawing.Size(326, 552)
+        Me.sidebar.Size = New System.Drawing.Size(326, 784)
         Me.sidebar.TabIndex = 0
+        '
+        'PictureBox7
+        '
+        Me.PictureBox7.Image = CType(resources.GetObject("PictureBox7.Image"), System.Drawing.Image)
+        Me.PictureBox7.Location = New System.Drawing.Point(25, 429)
+        Me.PictureBox7.Name = "PictureBox7"
+        Me.PictureBox7.Size = New System.Drawing.Size(57, 32)
+        Me.PictureBox7.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.PictureBox7.TabIndex = 12
+        Me.PictureBox7.TabStop = False
+        '
+        'Label5
+        '
+        Me.Label5.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.Location = New System.Drawing.Point(92, 429)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(231, 32)
+        Me.Label5.TabIndex = 11
+        Me.Label5.Text = "Data Bimbingan"
         '
         'PictureBox6
         '
@@ -198,36 +222,26 @@ Partial Class FormDashboard
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Panel1.Location = New System.Drawing.Point(326, 0)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(603, 552)
+        Me.Panel1.Size = New System.Drawing.Size(603, 784)
         Me.Panel1.TabIndex = 1
         '
-        'PictureBox7
+        'Label6
         '
-        Me.PictureBox7.Image = CType(resources.GetObject("PictureBox7.Image"), System.Drawing.Image)
-        Me.PictureBox7.Location = New System.Drawing.Point(25, 429)
-        Me.PictureBox7.Name = "PictureBox7"
-        Me.PictureBox7.Size = New System.Drawing.Size(57, 32)
-        Me.PictureBox7.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.PictureBox7.TabIndex = 12
-        Me.PictureBox7.TabStop = False
-        '
-        'Label5
-        '
-        Me.Label5.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.Label6.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label5.AutoSize = True
-        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(92, 429)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(231, 32)
-        Me.Label5.TabIndex = 11
-        Me.Label5.Text = "Data Bimbingan"
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.Location = New System.Drawing.Point(19, 719)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(116, 32)
+        Me.Label6.TabIndex = 13
+        Me.Label6.Text = "Log out"
         '
         'FormDashboard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(929, 552)
+        Me.ClientSize = New System.Drawing.Size(929, 784)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.sidebar)
         Me.Name = "FormDashboard"
@@ -235,13 +249,13 @@ Partial Class FormDashboard
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.sidebar.ResumeLayout(False)
         Me.sidebar.PerformLayout()
+        CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox5, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox4, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -262,4 +276,5 @@ Partial Class FormDashboard
     Friend WithEvents Label4 As Label
     Friend WithEvents PictureBox7 As PictureBox
     Friend WithEvents Label5 As Label
+    Friend WithEvents Label6 As Label
 End Class

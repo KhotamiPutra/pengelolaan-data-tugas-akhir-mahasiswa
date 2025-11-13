@@ -32,4 +32,11 @@
     Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
         ShowPage(New penetapan_pembimbing())
     End Sub
+
+    Private Sub Label6_Click(sender As Object, e As EventArgs) Handles Label6.Click
+        Dim login As New FormLogin()
+        login.StartPosition = FormStartPosition.CenterScreen
+        login.Show()
+        Me.Close()
+    End Sub
 End Class
