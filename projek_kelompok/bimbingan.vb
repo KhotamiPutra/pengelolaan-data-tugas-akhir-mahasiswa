@@ -1,222 +1,489 @@
 ﻿Imports System.Data.Odbc
-Imports System.IO
 Imports System.Drawing
+Imports System.Windows.Forms
+Imports System.IO
 
 Public Class bimbingan
     Inherits UserControl
 
     Dim cmd As OdbcCommand
-    Dim da As OdbcDataAdapter
-    Dim ds As DataSet
-    Dim nim_login As String
+    Dim dr As OdbcDataReader
+    Dim nim As String
     Dim id_ta As Integer = 0
-    Dim selectedFilePath As String = ""
 
-    ' Komponen utama
-    Dim lblJudul, lblFile, lblList As Label
-    Dim txtFile As TextBox
-    Dim cmbBab As ComboBox
-    Dim btnBrowse, btnUpload As Button
-    Dim dgvBimbingan As DataGridView
+    ' Deklarasi komponen UI
+    Private cmbBab As ComboBox
+    Private txtCatatan As TextBox
+    Private btnUpload As Button
+    Private btnSubmit As Button
+    Private lblFileName As Label
+    Private dgvRiwayat As DataGridView
+    Private ofdFile As OpenFileDialog
+    Private filePath As String = ""
+    Private lblStatusInfo As Label
 
-    Public Sub New(nim As String)
-        nim_login = nim
+    Public Sub New(nim_login As String)
         InitializeComponent()
+        nim = nim_login
         Connect()
-        BuildUI()
-        LoadIdTA()
-        LoadDataBimbingan()
+        InitializeUI()
+        LoadData()
     End Sub
 
-    Private Sub BuildUI()
+    Private Sub InitializeUI()
         Me.Dock = DockStyle.Fill
-        Me.BackColor = Color.FromArgb(245, 247, 250)
+        Me.BackColor = Color.White
+        Me.AutoScroll = True
 
-        ' ==== Header ====
-        Dim lblHeader As New Label With {
-            .Text = "BIMBINGAN TUGAS AKHIR",
-            .Font = New Font("Segoe UI Semibold", 18, FontStyle.Bold),
-            .ForeColor = Color.FromArgb(33, 33, 33),
-            .Dock = DockStyle.Top,
-            .Height = 60,
-            .TextAlign = ContentAlignment.MiddleCenter
-        }
-        Me.Controls.Add(lblHeader)
-
-        ' ==== Container ====
-        Dim container As New Panel With {
+        ' === CONTAINER UTAMA ===
+        Dim mainPanel As New Panel With {
             .Dock = DockStyle.Fill,
-            .Padding = New Padding(40)
+            .BackColor = Color.White,
+            .AutoScroll = True
         }
-        Me.Controls.Add(container)
-        container.BringToFront()
 
-        ' ==== Label File ====
-        lblFile = New Label With {
-            .Text = "Pilih File Bimbingan:",
-            .Font = New Font("Segoe UI", 11),
-            .Location = New Point(30, 30)
+        '' === HEADER ===
+        'Dim headerPanel As New Panel With {
+        '    .Dock = DockStyle.Top,
+        '    .Height = 70,
+        '    .BackColor = Color.FromArgb(41, 128, 185)
+        '}
+
+        'Dim lblTitle As New Label With {
+        '    .Text = "BIMBINGAN TUGAS AKHIR",
+        '    .Font = New Font("Segoe UI", 16, FontStyle.Bold),
+        '    .ForeColor = Color.White,
+        '    .Dock = DockStyle.Left,
+        '    .TextAlign = ContentAlignment.MiddleLeft,
+        '    .Padding = New Padding(30, 0, 0, 0)
+        '}
+
+        'headerPanel.Controls.Add(lblTitle)
+        'mainPanel.Controls.Add(headerPanel)
+
+        ' === CONTENT PANEL ===
+        Dim contentPanel As New Panel With {
+            .Dock = DockStyle.Fill,
+            .Padding = New Padding(30),
+            .BackColor = Color.White
         }
-        container.Controls.Add(lblFile)
 
-        ' ==== ComboBox Bab ====
+        ' === PANEL STATUS ===
+        Dim statusPanel As New Panel With {
+            .Dock = DockStyle.Top,
+            .Height = 50,
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .BorderStyle = BorderStyle.FixedSingle,
+            .Padding = New Padding(15)
+        }
+
+        lblStatusInfo = New Label With {
+            .Text = "Memuat data...",
+            .Font = New Font("Segoe UI", 11, FontStyle.Regular),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .Dock = DockStyle.Fill,
+            .TextAlign = ContentAlignment.MiddleLeft
+        }
+
+        statusPanel.Controls.Add(lblStatusInfo)
+        contentPanel.Controls.Add(statusPanel)
+
+        ' === PANEL FORM BIMBINGAN ===
+        Dim formPanel As New Panel With {
+            .Dock = DockStyle.Top,
+            .Height = 300,
+            .BackColor = Color.White,
+            .Padding = New Padding(0, 20, 0, 0),
+            .Margin = New Padding(0, 10, 0, 0)
+        }
+
+        ' Label Bab
+        Dim lblBab As New Label With {
+            .Text = "Pilih Bab *",
+            .Font = New Font("Segoe UI", 12, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .Location = New Point(0, 0),
+            .Size = New Size(150, 25)
+        }
+
         cmbBab = New ComboBox With {
-            .Font = New Font("Segoe UI", 10),
-            .Location = New Point(30, 60),
-            .Width = 120
+            .Location = New Point(0, 30),
+            .Size = New Size(300, 35),
+            .Font = New Font("Segoe UI", 11),
+            .DropDownStyle = ComboBoxStyle.DropDownList
         }
-        cmbBab.Items.AddRange(New String() {"Bab 1", "Bab 2", "Bab 3", "Bab 4", "Bab 5"})
-        cmbBab.SelectedIndex = 0
-        container.Controls.Add(cmbBab)
 
-        ' ==== Textbox File ====
-        txtFile = New TextBox With {
-            .Width = 350,
-            .Font = New Font("Segoe UI", 10),
-            .Location = New Point(170, 60),
-            .ReadOnly = True
+        ' Isi pilihan bab
+        cmbBab.Items.AddRange({"Bab 1 - Pendahuluan", "Bab 2 - Landasan Teori", "Bab 3 - Metodologi",
+                              "Bab 4 - Implementasi dan Pengujian", "Bab 5 - Kesimpulan dan Saran"})
+
+        ' Label Upload File
+        Dim lblUpload As New Label With {
+            .Text = "Upload File Bab *",
+            .Font = New Font("Segoe UI", 12, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .Location = New Point(0, 80),
+            .Size = New Size(150, 25)
         }
-        container.Controls.Add(txtFile)
 
-        ' ==== Tombol Browse ====
-        btnBrowse = New Button With {
-            .Text = "Browse...",
-            .Font = New Font("Segoe UI", 10),
-            .Location = New Point(530, 58),
-            .Width = 100
-        }
-        AddHandler btnBrowse.Click, AddressOf btnBrowse_Click
-        container.Controls.Add(btnBrowse)
-
-        ' ==== Tombol Upload ====
         btnUpload = New Button With {
-            .Text = "Upload",
-            .Font = New Font("Segoe UI Semibold", 10, FontStyle.Bold),
-            .Location = New Point(650, 58),
-            .Width = 100,
-            .BackColor = Color.FromArgb(76, 175, 80),
-            .ForeColor = Color.White,
+            .Text = "Pilih File PDF",
+            .Font = New Font("Segoe UI", 10),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .Size = New Size(150, 35),
+            .Location = New Point(0, 110),
             .FlatStyle = FlatStyle.Flat
         }
         AddHandler btnUpload.Click, AddressOf btnUpload_Click
-        container.Controls.Add(btnUpload)
 
-        ' ==== Label List ====
-        lblList = New Label With {
-            .Text = "Riwayat Bimbingan:",
-            .Font = New Font("Segoe UI Semibold", 12, FontStyle.Bold),
-            .Location = New Point(30, 110)
+        lblFileName = New Label With {
+            .Text = "Belum ada file dipilih",
+            .Font = New Font("Segoe UI", 9),
+            .ForeColor = Color.FromArgb(108, 117, 125),
+            .Location = New Point(160, 118),
+            .Size = New Size(400, 20)
         }
-        container.Controls.Add(lblList)
 
-        ' ==== DataGridView ====
-        dgvBimbingan = New DataGridView With {
-            .Location = New Point(30, 140),
-            .Width = 950,
-            .Height = 400,
-            .AllowUserToAddRows = False,
-            .ReadOnly = True,
+        ' Label Catatan
+        Dim lblCatatan As New Label With {
+            .Text = "Catatan untuk Dosen",
+            .Font = New Font("Segoe UI", 12, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .Location = New Point(0, 160),
+            .Size = New Size(200, 25)
+        }
+
+        txtCatatan = New TextBox With {
+            .Location = New Point(0, 190),
+            .Size = New Size(600, 80),
+            .Font = New Font("Segoe UI", 10),
+            .BorderStyle = BorderStyle.FixedSingle,
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .Multiline = True,
+            .ScrollBars = ScrollBars.Vertical
+        }
+
+        ' Tombol Submit
+        btnSubmit = New Button With {
+            .Text = "KIRIM UNTUK BIMBINGAN",
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold),
+            .ForeColor = Color.White,
+            .BackColor = Color.FromArgb(40, 167, 69),
+            .Size = New Size(200, 40),
+            .Location = New Point(0, 280),
+            .FlatStyle = FlatStyle.Flat
+        }
+        AddHandler btnSubmit.Click, AddressOf btnSubmit_Click
+
+        ' Tambahkan kontrol ke formPanel
+        formPanel.Controls.Add(lblBab)
+        formPanel.Controls.Add(cmbBab)
+        formPanel.Controls.Add(lblUpload)
+        formPanel.Controls.Add(btnUpload)
+        formPanel.Controls.Add(lblFileName)
+        formPanel.Controls.Add(lblCatatan)
+        formPanel.Controls.Add(txtCatatan)
+        formPanel.Controls.Add(btnSubmit)
+
+        contentPanel.Controls.Add(formPanel)
+
+        ' === PANEL RIWAYAT BIMBINGAN ===
+        Dim riwayatPanel As New Panel With {
+            .Dock = DockStyle.Fill,
+            .BackColor = Color.White,
+            .Padding = New Padding(0, 20, 0, 0)
+        }
+
+        Dim lblRiwayatTitle As New Label With {
+            .Text = "RIWAYAT BIMBINGAN",
+            .Font = New Font("Segoe UI", 14, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(41, 128, 185),
+            .Location = New Point(0, 0),
+            .Size = New Size(250, 30)
+        }
+
+        riwayatPanel.Controls.Add(lblRiwayatTitle)
+
+        ' DataGridView untuk riwayat bimbingan
+        dgvRiwayat = New DataGridView With {
+            .Location = New Point(0, 40),
+            .Size = New Size(900, 400),
+            .BackgroundColor = Color.White,
+            .BorderStyle = BorderStyle.FixedSingle,
             .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-            .BackgroundColor = Color.White
+            .ReadOnly = True,
+            .RowHeadersVisible = False,
+            .AllowUserToAddRows = False,
+            .AllowUserToDeleteRows = False
         }
-        container.Controls.Add(dgvBimbingan)
+
+        ' Setup columns
+        dgvRiwayat.Columns.Add("bab", "Bab")
+        dgvRiwayat.Columns.Add("tanggal", "Tanggal Bimbingan")
+        dgvRiwayat.Columns.Add("status", "Status")
+        dgvRiwayat.Columns.Add("catatan_dosen", "Catatan Dosen")
+        dgvRiwayat.Columns.Add("file", "File")
+
+        ' Styling DataGridView
+        dgvRiwayat.ColumnHeadersDefaultCellStyle = New DataGridViewCellStyle With {
+            .BackColor = Color.FromArgb(41, 128, 185),
+            .ForeColor = Color.White,
+            .Font = New Font("Segoe UI", 10, FontStyle.Bold)
+        }
+
+        dgvRiwayat.EnableHeadersVisualStyles = False
+
+        riwayatPanel.Controls.Add(dgvRiwayat)
+        contentPanel.Controls.Add(riwayatPanel)
+
+        ' Setup OpenFileDialog
+        ofdFile = New OpenFileDialog With {
+            .Filter = "PDF Files (*.pdf)|*.pdf",
+            .Title = "Pilih File Bab Tugas Akhir"
+        }
+
+        mainPanel.Controls.Add(contentPanel)
+        Me.Controls.Add(mainPanel)
     End Sub
 
-    Private Sub LoadIdTA()
+    Private Sub LoadData()
+        GetIDTA()
+        LoadStatusInfo()
+        LoadRiwayatBimbingan()
+        CheckFormAvailability()
+    End Sub
+
+    Private Sub GetIDTA()
         Try
-            Dim query As String = "SELECT id_ta FROM tugas_akhir WHERE nim=? ORDER BY id_ta DESC LIMIT 1"
-            cmd = New OdbcCommand(query, conn)
-            cmd.Parameters.AddWithValue("@nim", nim_login)
-            Dim dr As OdbcDataReader = cmd.ExecuteReader()
-            If dr.Read() Then
-                id_ta = Convert.ToInt32(dr("id_ta"))
+            cmd = New OdbcCommand("SELECT id_ta FROM tugas_akhir WHERE nim = ?", conn)
+            cmd.Parameters.AddWithValue("@nim", nim)
+
+            Dim result = cmd.ExecuteScalar()
+            If result IsNot Nothing Then
+                id_ta = Convert.ToInt32(result)
             Else
                 id_ta = 0
             End If
-            dr.Close()
+
         Catch ex As Exception
-            MessageBox.Show("Gagal memuat ID TA: " & ex.Message)
+            id_ta = 0
         End Try
     End Sub
 
-    Private Sub LoadDataBimbingan()
+    Private Sub LoadStatusInfo()
         Try
-            dgvBimbingan.Columns.Clear()
-            da = New OdbcDataAdapter("
-                SELECT 
-                    bab AS 'BAB',
-                    nama_file AS 'File',
-                    tanggal_bimbingan AS 'Tanggal',
-                    status_bab AS 'Status',
-                    IFNULL(catatan_dosen, '-') AS 'Catatan Dosen'
-                FROM bimbingan
-                WHERE id_ta='" & id_ta & "'", conn)
-            ds = New DataSet
-            da.Fill(ds, "bimbingan")
-            dgvBimbingan.DataSource = ds.Tables("bimbingan")
+            If id_ta > 0 Then
+                cmd = New OdbcCommand("SELECT ta.status, d.nama_dosen " &
+                                      "FROM tugas_akhir ta " &
+                                      "LEFT JOIN pembimbing p ON ta.id_ta = p.id_ta " &
+                                      "LEFT JOIN dosen d ON p.nidn = d.nidn " &
+                                      "WHERE ta.id_ta = ? AND p.peran = 'Pembimbing Utama'", conn)
+                cmd.Parameters.AddWithValue("@id_ta", id_ta)
 
-            ' Ubah warna baris sesuai status
-            For Each row As DataGridViewRow In dgvBimbingan.Rows
-                Select Case row.Cells("Status").Value.ToString()
-                    Case "Menunggu"
-                        row.DefaultCellStyle.BackColor = Color.FromArgb(255, 249, 196)
-                    Case "Direvisi"
-                        row.DefaultCellStyle.BackColor = Color.FromArgb(255, 205, 210)
-                    Case "Disetujui"
-                        row.DefaultCellStyle.BackColor = Color.FromArgb(200, 230, 201)
-                End Select
-            Next
+                dr = cmd.ExecuteReader()
+                If dr.Read() Then
+                    Dim status = dr("status").ToString()
+                    Dim dosen = If(dr("nama_dosen") Is DBNull.Value, "Belum ditentukan", dr("nama_dosen").ToString())
+
+                    lblStatusInfo.Text = $"Status TA: {status} | Dosen Pembimbing: {dosen}"
+
+                    If status = "Dibimbing" Then
+                        lblStatusInfo.ForeColor = Color.FromArgb(40, 167, 69)
+                    Else
+                        lblStatusInfo.ForeColor = Color.FromArgb(108, 117, 125)
+                    End If
+                Else
+                    lblStatusInfo.Text = "Status TA: - | Dosen Pembimbing: Belum ditentukan"
+                    lblStatusInfo.ForeColor = Color.FromArgb(108, 117, 125)
+                End If
+                dr.Close()
+            Else
+                lblStatusInfo.Text = "Anda belum mengajukan Tugas Akhir"
+                lblStatusInfo.ForeColor = Color.FromArgb(220, 53, 69)
+            End If
+
         Catch ex As Exception
-            MessageBox.Show("Kesalahan memuat data bimbingan: " & ex.Message)
+            lblStatusInfo.Text = "Error memuat data"
+            lblStatusInfo.ForeColor = Color.Red
         End Try
     End Sub
 
-    Private Sub btnBrowse_Click(sender As Object, e As EventArgs)
-        Dim ofd As New OpenFileDialog()
-        ofd.Filter = "File Dokumen (*.pdf;*.docx)|*.pdf;*.docx"
-        If ofd.ShowDialog() = DialogResult.OK Then
-            selectedFilePath = ofd.FileName
-            txtFile.Text = Path.GetFileName(selectedFilePath)
+    Private Sub CheckFormAvailability()
+        If id_ta = 0 Then
+            DisableForm("Anda belum mengajukan Tugas Akhir")
+        Else
+            cmd = New OdbcCommand("SELECT status FROM tugas_akhir WHERE id_ta = ?", conn)
+            cmd.Parameters.AddWithValue("@id_ta", id_ta)
+
+            Dim status = cmd.ExecuteScalar()?.ToString()
+
+            If status = "Dibimbing" Then
+                EnableForm()
+            Else
+                DisableForm($"Form bimbingan hanya tersedia untuk status 'Dibimbing'. Status saat ini: {status}")
+            End If
+        End If
+    End Sub
+
+    Private Sub EnableForm()
+        cmbBab.Enabled = True
+        btnUpload.Enabled = True
+        txtCatatan.Enabled = True
+        btnSubmit.Enabled = True
+
+        cmbBab.BackColor = Color.White
+        txtCatatan.BackColor = Color.White
+    End Sub
+
+    Private Sub DisableForm(message As String)
+        cmbBab.Enabled = False
+        btnUpload.Enabled = False
+        txtCatatan.Enabled = False
+        btnSubmit.Enabled = False
+
+        cmbBab.BackColor = Color.FromArgb(248, 249, 250)
+        txtCatatan.BackColor = Color.FromArgb(248, 249, 250)
+
+        If Not String.IsNullOrEmpty(message) Then
+            lblStatusInfo.Text = message
+            lblStatusInfo.ForeColor = Color.FromArgb(220, 53, 69)
         End If
     End Sub
 
     Private Sub btnUpload_Click(sender As Object, e As EventArgs)
+        If ofdFile.ShowDialog() = DialogResult.OK Then
+            filePath = ofdFile.FileName
+            lblFileName.Text = Path.GetFileName(filePath)
+            lblFileName.ForeColor = Color.FromArgb(40, 167, 69)
+        End If
+    End Sub
+
+    Private Sub btnSubmit_Click(sender As Object, e As EventArgs)
+        If ValidateForm() Then
+            SubmitBimbingan()
+        End If
+    End Sub
+
+    Private Function ValidateForm() As Boolean
+        If cmbBab.SelectedIndex = -1 Then
+            MessageBox.Show("Pilih bab terlebih dahulu!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cmbBab.Focus()
+            Return False
+        End If
+
+        If String.IsNullOrEmpty(filePath) Then
+            MessageBox.Show("Pilih file PDF terlebih dahulu!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            btnUpload.Focus()
+            Return False
+        End If
+
+        ' Cek ekstensi file
+        If Path.GetExtension(filePath).ToLower() <> ".pdf" Then
+            MessageBox.Show("Hanya file PDF yang diizinkan!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
+        ' Cek ukuran file (max 10MB)
+        Dim fileInfo As New FileInfo(filePath)
+        If fileInfo.Length > 10 * 1024 * 1024 Then
+            MessageBox.Show("Ukuran file maksimal 10MB!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    Private Sub SubmitBimbingan()
         Try
-            If selectedFilePath = "" Then
-                MessageBox.Show("Pilih file terlebih dahulu!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Return
-            End If
+            ' Extract bab number dari pilihan
+            Dim babText As String = cmbBab.SelectedItem.ToString()
+            Dim babNumber As String = babText.Split(" ")(1) ' Mengambil angka bab
 
-            If id_ta = 0 Then
-                MessageBox.Show("Anda belum memiliki data Tugas Akhir!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Return
-            End If
+            ' Generate nama file yang unik
+            Dim fileName As String = $"{nim}_Bab_{babNumber}_{DateTime.Now:yyyyMMddHHmmss}.pdf"
 
-            ' === Simpan file ke folder lokal ===
-            Dim folder As String = Path.Combine(Application.StartupPath, "Uploads")
-            If Not Directory.Exists(folder) Then Directory.CreateDirectory(folder)
+            ' Simpan file ke folder (dalam real implementation)
+            ' Untuk sekarang kita simpan path filenya saja di database
+            Dim savedFilePath As String = Path.Combine("bimbingan_files", fileName)
 
-            ' Nama file unik: NIM_BAB.pdf
-            Dim fileName As String = nim_login & "_" & cmbBab.Text.Replace(" ", "_") & Path.GetExtension(selectedFilePath)
-            Dim destination As String = Path.Combine(folder, fileName)
-            File.Copy(selectedFilePath, destination, True)
-
-            ' === Simpan ke database ===
-            Dim query As String = "
-                INSERT INTO bimbingan (id_ta, tanggal_bimbingan, bab, nama_file, status_bab) 
-                VALUES (?, CURDATE(), ?, ?, 'Menunggu')"
-            cmd = New OdbcCommand(query, conn)
+            ' Insert data bimbingan ke database
+            cmd = New OdbcCommand("INSERT INTO bimbingan (id_ta, tanggal_bimbingan, bab, nama_file, catatan_dosen, status_bab) " &
+                                  "VALUES (?, ?, ?, ?, ?, 'Menunggu')", conn)
             cmd.Parameters.AddWithValue("@id_ta", id_ta)
-            cmd.Parameters.AddWithValue("@bab", cmbBab.Text)
+            cmd.Parameters.AddWithValue("@tanggal", DateTime.Now.ToString("yyyy-MM-dd"))
+            cmd.Parameters.AddWithValue("@bab", babText)
             cmd.Parameters.AddWithValue("@nama_file", fileName)
-            cmd.ExecuteNonQuery()
+            cmd.Parameters.AddWithValue("@catatan", If(String.IsNullOrWhiteSpace(txtCatatan.Text), DBNull.Value, txtCatatan.Text.Trim()))
 
-            MessageBox.Show("File bimbingan berhasil dikirim!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            LoadDataBimbingan()
-            txtFile.Clear()
+            Dim result = cmd.ExecuteNonQuery()
+
+            If result > 0 Then
+                MessageBox.Show("Bab berhasil dikirim untuk bimbingan! Silakan tunggu review dari dosen.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                ' Reset form
+                ResetForm()
+
+                ' Reload riwayat
+                LoadRiwayatBimbingan()
+            Else
+                MessageBox.Show("Gagal mengirim bimbingan. Silakan coba lagi.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
 
         Catch ex As Exception
-            MessageBox.Show("Kesalahan saat upload: " & ex.Message)
+            MessageBox.Show("Error submitting bimbingan: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
+    End Sub
+
+    Private Sub ResetForm()
+        cmbBab.SelectedIndex = -1
+        txtCatatan.Text = ""
+        filePath = ""
+        lblFileName.Text = "Belum ada file dipilih"
+        lblFileName.ForeColor = Color.FromArgb(108, 117, 125)
+    End Sub
+
+    Private Sub LoadRiwayatBimbingan()
+        Try
+            dgvRiwayat.Rows.Clear()
+
+            If id_ta > 0 Then
+                cmd = New OdbcCommand("SELECT bab, tanggal_bimbingan, status_bab, catatan_dosen, nama_file " &
+                                      "FROM bimbingan WHERE id_ta = ? ORDER BY tanggal_bimbingan DESC", conn)
+                cmd.Parameters.AddWithValue("@id_ta", id_ta)
+
+                dr = cmd.ExecuteReader()
+
+                While dr.Read()
+                    Dim bab = dr("bab").ToString()
+                    Dim tanggal = Convert.ToDateTime(dr("tanggal_bimbingan")).ToString("dd/MM/yyyy")
+                    Dim status = dr("status_bab").ToString()
+                    Dim catatan = If(dr("catatan_dosen") Is DBNull.Value, "-", dr("catatan_dosen").ToString())
+                    Dim file = dr("nama_file").ToString()
+
+                    ' Tambahkan row ke DataGridView
+                    Dim rowIndex = dgvRiwayat.Rows.Add(bab, tanggal, status, catatan, file)
+
+                    ' Warna baris berdasarkan status
+                    Select Case status
+                        Case "Disetujui"
+                            dgvRiwayat.Rows(rowIndex).DefaultCellStyle.BackColor = Color.FromArgb(212, 237, 218)
+                        Case "Direvisi"
+                            dgvRiwayat.Rows(rowIndex).DefaultCellStyle.BackColor = Color.FromArgb(255, 243, 205)
+                        Case "Menunggu"
+                            dgvRiwayat.Rows(rowIndex).DefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250)
+                    End Select
+                End While
+                dr.Close()
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show("Error loading riwayat bimbingan: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' Method untuk refresh data
+    Public Sub RefreshData()
+        LoadData()
     End Sub
 End Class

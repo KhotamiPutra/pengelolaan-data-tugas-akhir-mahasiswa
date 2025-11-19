@@ -26,9 +26,6 @@
     Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
         ShowPage(New riwayat(nim_login))
     End Sub
-    Private Sub Label3_Click(sender As Object, e As EventArgs) Handles Label3.Click
-        ShowPage(New arsip())
-    End Sub
 
     Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
         Dim login As New FormLogin()

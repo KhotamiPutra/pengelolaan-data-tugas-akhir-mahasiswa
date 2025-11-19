@@ -1,5 +1,6 @@
 ﻿Imports System.Data.Odbc
 Imports System.Drawing
+Imports System.Windows.Forms
 
 Public Class penetapan_pembimbing
     Inherits UserControl
@@ -7,169 +8,187 @@ Public Class penetapan_pembimbing
     Dim cmd As OdbcCommand
     Dim da As OdbcDataAdapter
     Dim ds As DataSet
-    Dim selectedIdTA As Integer = 0
 
     Dim dgvTA As DataGridView
-    Dim cmbPembimbing As ComboBox
-    Dim btnSimpan As Button
+    Dim cbDosen As ComboBox
+    Dim btnTetapkan As Button
+
+    Dim selectedIdTA As Integer = -1
 
     Public Sub New()
         InitializeComponent()
-        Connect() ' ini panggil dari Module1
+        Me.Dock = DockStyle.Fill
+        Me.BackColor = Color.FromArgb(245, 245, 248)
+        Connect()
         BuildUI()
         LoadDataTA()
-        LoadPembimbing()
+        LoadDosen()
     End Sub
 
-
-
     Private Sub BuildUI()
-        Me.Dock = DockStyle.Fill
-        Me.BackColor = Color.FromArgb(245, 247, 250)
 
-        ' === Header ===
+        ' Title
         Dim lblHeader As New Label With {
-            .Text = "PENETAPAN DOSEN PEMBIMBING",
-            .Font = New Font("Segoe UI Semibold", 18, FontStyle.Bold),
+            .Text = "Penetapan Pembimbing Tugas Akhir",
+            .Font = New Font("Segoe UI Semibold", 20, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(44, 62, 80),
             .Dock = DockStyle.Top,
-            .Height = 60,
+            .Height = 70,
             .TextAlign = ContentAlignment.MiddleCenter
         }
         Me.Controls.Add(lblHeader)
 
-        ' === DataGridView ===
+        ' DataGridView
         dgvTA = New DataGridView With {
-            .Location = New Point(40, 80),
-            .Width = 900,
-            .Height = 350,
-            .AllowUserToAddRows = False,
+            .Location = New Point(30, 90),
+            .Size = New Size(900, 350),
             .ReadOnly = True,
-            .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+            .AllowUserToAddRows = False,
+            .RowHeadersVisible = False,
+            .SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             .BackgroundColor = Color.White
         }
         AddHandler dgvTA.CellClick, AddressOf dgvTA_CellClick
         Me.Controls.Add(dgvTA)
 
-        ' === ComboBox Pembimbing ===
-        Dim lblPemb As New Label With {
-            .Text = "Pilih Pembimbing:",
-            .Font = New Font("Segoe UI", 11),
-            .Location = New Point(40, 450)
+        ' Label dosen
+        Dim lblDosen As New Label With {
+            .Text = "Pilih Dosen Pembimbing:",
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold),
+            .Location = New Point(30, 470)
         }
-        Me.Controls.Add(lblPemb)
+        Me.Controls.Add(lblDosen)
 
-        cmbPembimbing = New ComboBox With {
-            .Font = New Font("Segoe UI", 10),
-            .Location = New Point(200, 446),
-            .Width = 250
+        ' ComboBox dosen
+        cbDosen = New ComboBox With {
+            .Location = New Point(30, 500),
+            .Width = 300,
+            .DropDownStyle = ComboBoxStyle.DropDownList
         }
-        Me.Controls.Add(cmbPembimbing)
+        Me.Controls.Add(cbDosen)
 
-        ' === Tombol Simpan ===
-        btnSimpan = New Button With {
-            .Text = "Simpan Pembimbing",
-            .Font = New Font("Segoe UI Semibold", 10, FontStyle.Bold),
-            .Location = New Point(480, 444),
-            .Width = 180,
-            .Height = 50,
-            .BackColor = Color.FromArgb(76, 175, 80),
+        ' Button tetapkan
+        btnTetapkan = New Button With {
+            .Text = "TETAPKAN PEMBIMBING",
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold),
+            .Location = New Point(350, 498),
+            .Size = New Size(200, 35),
+            .BackColor = Color.FromArgb(52, 152, 219),
             .ForeColor = Color.White,
             .FlatStyle = FlatStyle.Flat
         }
-        AddHandler btnSimpan.Click, AddressOf btnSimpan_Click
-        Me.Controls.Add(btnSimpan)
+        AddHandler btnTetapkan.Click, AddressOf btnTetapkan_Click
+        Me.Controls.Add(btnTetapkan)
     End Sub
 
+    ' ===============================
+    ' LOAD DATA TA KE DATAGRID
+    ' ===============================
     Private Sub LoadDataTA()
         Try
-            da = New OdbcDataAdapter("
-            SELECT 
-                t.id_ta AS 'ID',
-                m.nim AS 'NIM',
-                m.nama_mahasiswa AS 'Nama Mahasiswa',
-                t.judul_ta AS 'Judul',
-                IFNULL(d.nama_dosen, '-') AS 'Pembimbing',
-                t.status AS 'Status'
-            FROM tugas_akhir t
-            JOIN mahasiswa m ON t.nim = m.nim
-            LEFT JOIN pembimbing pb ON pb.id_ta = t.id_ta
-            LEFT JOIN dosen d ON pb.nidn = d.nidn
-            WHERE t.status IN ('Diajukan', 'Dibimbing')
-            ORDER BY t.id_ta DESC", conn)
+            Dim query As String =
+                "SELECT 
+                    ta.id_ta,
+                    m.nama_mahasiswa,
+                    ta.nim,
+                    ta.judul_ta,
+                    ta.status,
+                    (SELECT nama_dosen FROM dosen d 
+                     JOIN pembimbing p ON d.nidn = p.nidn 
+                     WHERE p.id_ta = ta.id_ta LIMIT 1) AS pembimbing
+                FROM tugas_akhir ta
+                JOIN mahasiswa m ON ta.nim = m.nim
+                ORDER BY ta.id_ta DESC"
 
-            ds = New DataSet
-            da.Fill(ds, "tugas_akhir")
-            dgvTA.DataSource = ds.Tables("tugas_akhir")
-            dgvTA.Columns("ID").Visible = False
+            da = New OdbcDataAdapter(query, conn)
+            ds = New DataSet()
+            da.Fill(ds)
+
+            dgvTA.DataSource = ds.Tables(0)
+
+            dgvTA.Columns("id_ta").HeaderText = "ID TA"
+            dgvTA.Columns("nama_mahasiswa").HeaderText = "Nama"
+            dgvTA.Columns("nim").HeaderText = "NIM"
+            dgvTA.Columns("judul_ta").HeaderText = "Judul TA"
+            dgvTA.Columns("status").HeaderText = "Status"
+            dgvTA.Columns("pembimbing").HeaderText = "Pembimbing"
+
+            dgvTA.Columns("judul_ta").Width = 250
+
         Catch ex As Exception
-            MessageBox.Show("Kesalahan memuat data TA: " & ex.Message)
+            MessageBox.Show("Error load TA: " & ex.Message)
         End Try
     End Sub
 
-
-    Private Sub LoadPembimbing()
+    ' ===============================
+    ' LOAD DOSEN
+    ' ===============================
+    Private Sub LoadDosen()
         Try
-            da = New OdbcDataAdapter("SELECT nidn, nama_dosen FROM dosen ORDER BY nama_dosen ASC", conn)
-            ds = New DataSet
-            da.Fill(ds, "dosen")
-            cmbPembimbing.DataSource = ds.Tables("dosen")
-            cmbPembimbing.DisplayMember = "nama_dosen"
-            cmbPembimbing.ValueMember = "nidn"
+            cmd = New OdbcCommand("SELECT nidn, nama_dosen FROM dosen", conn)
+            Dim rd = cmd.ExecuteReader()
+
+            cbDosen.Items.Clear()
+
+            While rd.Read()
+                cbDosen.Items.Add(rd("nidn") & " - " & rd("nama_dosen"))
+            End While
+
+            rd.Close()
         Catch ex As Exception
-            MessageBox.Show("Kesalahan memuat data dosen pembimbing: " & ex.Message)
+            MessageBox.Show("Error load dosen: " & ex.Message)
         End Try
     End Sub
 
-
+    ' ===============================
+    ' GET SELECTED TA
+    ' ===============================
     Private Sub dgvTA_CellClick(sender As Object, e As DataGridViewCellEventArgs)
         If e.RowIndex >= 0 Then
-            selectedIdTA = Convert.ToInt32(dgvTA.Rows(e.RowIndex).Cells("ID").Value)
+            selectedIdTA = dgvTA.Rows(e.RowIndex).Cells("id_ta").Value
         End If
     End Sub
 
-    Private Sub btnSimpan_Click(sender As Object, e As EventArgs)
+    ' ===============================
+    ' TETAPKAN PEMBIMBING
+    ' ===============================
+    Private Sub btnTetapkan_Click(sender As Object, e As EventArgs)
+        If selectedIdTA = -1 Then
+            MessageBox.Show("Pilih data TA terlebih dahulu.")
+            Return
+        End If
+
+        If cbDosen.SelectedIndex = -1 Then
+            MessageBox.Show("Pilih dosen pembimbing.")
+            Return
+        End If
+
+        Dim nidn As String = cbDosen.SelectedItem.ToString().Split(" - ")(0)
+
         Try
-            If selectedIdTA = 0 Then
-                MessageBox.Show("Pilih mahasiswa terlebih dahulu!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            ' cek apakah sudah punya pembimbing
+            cmd = New OdbcCommand("SELECT COUNT(*) FROM pembimbing WHERE id_ta = " & selectedIdTA, conn)
+            Dim count As Integer = cmd.ExecuteScalar()
+
+            If count > 0 Then
+                MessageBox.Show("Mahasiswa ini sudah memiliki pembimbing.")
                 Return
             End If
 
-            Dim nidn As String = cmbPembimbing.SelectedValue.ToString()
+            ' insert pembimbing
+            cmd = New OdbcCommand("
+                INSERT INTO pembimbing (id_ta, nidn, peran, tanggal_tugas)
+                VALUES (" & selectedIdTA & ", '" & nidn & "', 'Pembimbing Utama', CURDATE())", conn)
 
-            Dim cekQuery As String = "SELECT COUNT(*) FROM pembimbing WHERE id_ta = ?"
-            cmd = New OdbcCommand(cekQuery, conn)
-            cmd.Parameters.AddWithValue("@id_ta", selectedIdTA)
-            Dim sudahAda As Integer = Convert.ToInt32(cmd.ExecuteScalar())
-
-            If sudahAda > 0 Then
-                Dim updateQuery As String = "UPDATE pembimbing SET nidn=?, tanggal_tugas=CURDATE() WHERE id_ta=?"
-                cmd = New OdbcCommand(updateQuery, conn)
-                cmd.Parameters.AddWithValue("@nidn", nidn)
-                cmd.Parameters.AddWithValue("@id_ta", selectedIdTA)
-                cmd.ExecuteNonQuery()
-
-                MessageBox.Show("Data pembimbing berhasil diperbarui!", "Update Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Else
-                Dim insertQuery As String = "INSERT INTO pembimbing (id_ta, nidn, peran, tanggal_tugas) VALUES (?, ?, 'Pembimbing Utama', CURDATE())"
-                cmd = New OdbcCommand(insertQuery, conn)
-                cmd.Parameters.AddWithValue("@id_ta", selectedIdTA)
-                cmd.Parameters.AddWithValue("@nidn", nidn)
-                cmd.ExecuteNonQuery()
-
-                MessageBox.Show("Dosen pembimbing berhasil ditetapkan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-
-            cmd = New OdbcCommand("UPDATE tugas_akhir SET status='Dibimbing' WHERE id_ta=?", conn)
-            cmd.Parameters.AddWithValue("@id_ta", selectedIdTA)
             cmd.ExecuteNonQuery()
 
+            MessageBox.Show("Pembimbing berhasil ditetapkan!")
+
             LoadDataTA()
-            selectedIdTA = 0
 
         Catch ex As Exception
-            MessageBox.Show("Kesalahan saat menyimpan pembimbing: " & ex.Message)
+            MessageBox.Show("Error tetapkan pembimbing: " & ex.Message)
         End Try
     End Sub
-
 
 End Class

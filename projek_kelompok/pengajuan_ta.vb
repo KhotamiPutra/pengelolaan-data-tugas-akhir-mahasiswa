@@ -1,225 +1,404 @@
 ﻿Imports System.Data.Odbc
 Imports System.Drawing
+Imports System.Windows.Forms
 
 Public Class pengajuan_ta
     Inherits UserControl
 
     Dim cmd As OdbcCommand
     Dim dr As OdbcDataReader
-    Dim nim_login As String
+    Dim nim As String
 
-    ' Komponen utama
-    Dim lblJudul, lblDeskripsi, lblStatus, lblJudulTA, lblKetStatus As Label
-    Dim txtJudul, txtDeskripsi As TextBox
-    Dim btnAjukan, btnBatal As Button
-    Dim panelStatus As Panel
+    ' Deklarasi komponen UI
+    Private txtJudulTA As TextBox
+    Private txtDeskripsiTA As TextBox
+    Private btnSubmit As Button
+    Private btnReset As Button
+    Private lblStatus As Label
+    Private panelStatus As Panel
 
-    Public Sub New(nim As String)
-        nim_login = nim
+    Public Sub New(nim_login As String)
         InitializeComponent()
+        nim = nim_login
         Connect()
-        BuildUI()
-        LoadPengajuan()
+        InitializeUI()
+        CheckExistingTA()
     End Sub
 
-    Private Sub BuildUI()
+    Private Sub InitializeUI()
         Me.Dock = DockStyle.Fill
-        Me.BackColor = Color.FromArgb(245, 247, 250)
+        Me.BackColor = Color.White
+        Me.AutoScroll = True
 
-        ' === Header ===
-        Dim lblHeader As New Label With {
-            .Text = "PENGAJUAN TUGAS AKHIR",
-            .Font = New Font("Segoe UI Semibold", 18, FontStyle.Bold),
-            .ForeColor = Color.FromArgb(33, 33, 33),
+        ' === CONTAINER UTAMA ===
+        Dim mainPanel As New Panel With {
+            .Dock = DockStyle.Fill,
+            .BackColor = Color.White,
+            .AutoScroll = True,
+            .Padding = New Padding(30)
+        }
+
+        '' === HEADER ===
+        'Dim headerPanel As New Panel With {
+        '    .Dock = DockStyle.Top,
+        '    .Height = 70,
+        '    .BackColor = Color.FromArgb(41, 128, 185)
+        '}
+
+        'Dim lblTitle As New Label With {
+        '    .Text = "PENGAJUAN TUGAS AKHIR",
+        '    .Font = New Font("Segoe UI", 16, FontStyle.Bold),
+        '    .ForeColor = Color.White,
+        '    .Dock = DockStyle.Left,
+        '    .TextAlign = ContentAlignment.MiddleLeft,
+        '    .Padding = New Padding(30, 0, 0, 0)
+        '}
+
+        'headerPanel.Controls.Add(lblTitle)
+        'mainPanel.Controls.Add(headerPanel)
+
+        ' === CONTENT PANEL ===
+        Dim contentPanel As New Panel With {
+            .Dock = DockStyle.Fill,
+            .Padding = New Padding(40, 30, 40, 30),
+            .BackColor = Color.White
+        }
+
+        ' === PANEL STATUS ===
+        panelStatus = New Panel With {
             .Dock = DockStyle.Top,
             .Height = 60,
-            .TextAlign = ContentAlignment.MiddleCenter
-        }
-        Me.Controls.Add(lblHeader)
-
-        ' === Layout utama ===
-        Dim container As New Panel With {
-            .Dock = DockStyle.Fill,
-            .Padding = New Padding(50)
-        }
-        Me.Controls.Add(container)
-        container.BringToFront()
-
-        ' Label Judul TA
-        lblJudul = New Label With {
-            .Text = "Judul Tugas Akhir:",
-            .Font = New Font("Segoe UI", 11, FontStyle.Regular),
-            .AutoSize = True,
-            .Location = New Point(50, 40)
-        }
-        container.Controls.Add(lblJudul)
-
-        ' Textbox Judul
-        txtJudul = New TextBox With {
-            .Font = New Font("Segoe UI", 11),
-            .Width = 500,
-            .Location = New Point(50, 70)
-        }
-        container.Controls.Add(txtJudul)
-
-        ' Label Deskripsi
-        lblDeskripsi = New Label With {
-            .Text = "Deskripsi Singkat:",
-            .Font = New Font("Segoe UI", 11, FontStyle.Regular),
-            .AutoSize = True,
-            .Location = New Point(50, 120)
-        }
-        container.Controls.Add(lblDeskripsi)
-
-        ' Textbox Deskripsi
-        txtDeskripsi = New TextBox With {
-            .Multiline = True,
-            .Font = New Font("Segoe UI", 11),
-            .Width = 500,
-            .Height = 120,
-            .Location = New Point(50, 150)
-        }
-        container.Controls.Add(txtDeskripsi)
-
-        ' Tombol Ajukan
-        btnAjukan = New Button With {
-            .Text = "Ajukan Judul",
-            .Font = New Font("Segoe UI Semibold", 11, FontStyle.Bold),
-            .Width = 160,
-            .Height = 40,
-            .Location = New Point(50, 290),
-            .BackColor = Color.FromArgb(76, 175, 80),
-            .ForeColor = Color.White,
-            .FlatStyle = FlatStyle.Flat
-        }
-        AddHandler btnAjukan.Click, AddressOf btnAjukan_Click
-        container.Controls.Add(btnAjukan)
-
-        ' Tombol Batalkan
-        btnBatal = New Button With {
-            .Text = "Batalkan Pengajuan",
-            .Font = New Font("Segoe UI Semibold", 11, FontStyle.Bold),
-            .Width = 200,
-            .Height = 40,
-            .Location = New Point(220, 290),
-            .BackColor = Color.FromArgb(244, 67, 54),
-            .ForeColor = Color.White,
-            .FlatStyle = FlatStyle.Flat,
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .BorderStyle = BorderStyle.FixedSingle,
+            .Padding = New Padding(20),
             .Visible = False
         }
-        AddHandler btnBatal.Click, AddressOf btnBatal_Click
-        container.Controls.Add(btnBatal)
 
-        ' Panel Status
-        panelStatus = New Panel With {
-            .Width = 300,
-            .Height = 120,
-            .BackColor = Color.White,
-            .Location = New Point(600, 70),
-            .Padding = New Padding(10),
-            .BorderStyle = BorderStyle.FixedSingle
-        }
-        container.Controls.Add(panelStatus)
-
-        lblJudulTA = New Label With {
-            .Text = "Status Pengajuan:",
-            .Font = New Font("Segoe UI Semibold", 11, FontStyle.Bold),
-            .Dock = DockStyle.Top,
-            .Height = 25,
-            .TextAlign = ContentAlignment.MiddleCenter
-        }
-        panelStatus.Controls.Add(lblJudulTA)
-
-        lblKetStatus = New Label With {
-            .Text = "Belum Mengajukan",
+        lblStatus = New Label With {
+            .Text = "",
             .Font = New Font("Segoe UI", 12, FontStyle.Bold),
-            .ForeColor = Color.FromArgb(97, 97, 97),
+            .ForeColor = Color.FromArgb(33, 37, 41),
             .Dock = DockStyle.Fill,
-            .TextAlign = ContentAlignment.MiddleCenter
+            .TextAlign = ContentAlignment.MiddleLeft
         }
-        panelStatus.Controls.Add(lblKetStatus)
+
+        panelStatus.Controls.Add(lblStatus)
+        contentPanel.Controls.Add(panelStatus)
+
+        ' === PANEL FORM ===
+        Dim formPanel As New Panel With {
+            .Dock = DockStyle.Top,
+            .Height = 400,
+            .BackColor = Color.White,
+            .Padding = New Padding(0, 20, 0, 0)
+        }
+
+        ' Label Judul TA
+        Dim lblJudul As New Label With {
+            .Text = "Judul Tugas Akhir *",
+            .Font = New Font("Segoe UI", 12, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .Location = New Point(0, 20),
+            .Size = New Size(200, 25)
+        }
+
+        txtJudulTA = New TextBox With {
+            .Location = New Point(0, 50),
+            .Size = New Size(600, 35),
+            .Font = New Font("Segoe UI", 11),
+            .BorderStyle = BorderStyle.FixedSingle,
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .Multiline = False
+        }
+
+        ' Label Deskripsi TA
+        Dim lblDeskripsi As New Label With {
+            .Text = "Deskripsi Tugas Akhir *",
+            .Font = New Font("Segoe UI", 12, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .Location = New Point(0, 110),
+            .Size = New Size(200, 25)
+        }
+
+        txtDeskripsiTA = New TextBox With {
+            .Location = New Point(0, 140),
+            .Size = New Size(600, 120),
+            .Font = New Font("Segoe UI", 11),
+            .BorderStyle = BorderStyle.FixedSingle,
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .Multiline = True,
+            .ScrollBars = ScrollBars.Vertical
+        }
+
+        ' Panel Tombol
+        Dim buttonPanel As New Panel With {
+            .Location = New Point(0, 280),
+            .Size = New Size(600, 50)
+        }
+
+        btnSubmit = New Button With {
+            .Text = "AJUKAN TUGAS AKHIR",
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold),
+            .ForeColor = Color.White,
+            .BackColor = Color.FromArgb(40, 167, 69),
+            .Size = New Size(200, 40),
+            .Location = New Point(0, 0),
+            .FlatStyle = FlatStyle.Flat
+        }
+        AddHandler btnSubmit.Click, AddressOf btnSubmit_Click
+
+        btnReset = New Button With {
+            .Text = "RESET FORM",
+            .Font = New Font("Segoe UI", 11, FontStyle.Regular),
+            .ForeColor = Color.FromArgb(33, 37, 41),
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .Size = New Size(150, 40),
+            .Location = New Point(220, 0),
+            .FlatStyle = FlatStyle.Flat
+        }
+        AddHandler btnReset.Click, AddressOf btnReset_Click
+
+        buttonPanel.Controls.Add(btnSubmit)
+        buttonPanel.Controls.Add(btnReset)
+
+        ' Tambahkan kontrol ke formPanel
+        formPanel.Controls.Add(lblJudul)
+        formPanel.Controls.Add(txtJudulTA)
+        formPanel.Controls.Add(lblDeskripsi)
+        formPanel.Controls.Add(txtDeskripsiTA)
+        formPanel.Controls.Add(buttonPanel)
+
+        contentPanel.Controls.Add(formPanel)
+
+        ' === PANEL INFORMASI ===
+        Dim infoPanel As New Panel With {
+            .Dock = DockStyle.Top,
+            .Height = 150,
+            .BackColor = Color.FromArgb(248, 249, 250),
+            .BorderStyle = BorderStyle.FixedSingle,
+            .Padding = New Padding(20),
+            .Margin = New Padding(0, 20, 0, 0)
+        }
+
+        Dim lblInfoTitle As New Label With {
+            .Text = "Informasi Pengajuan",
+            .Font = New Font("Segoe UI", 14, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(41, 128, 185),
+            .Location = New Point(0, 0),
+            .Size = New Size(200, 30)
+        }
+
+        Dim lblInfo1 As New Label With {
+            .Text = "• Pastikan judul tugas akhir jelas dan deskriptif",
+            .Font = New Font("Segoe UI", 10),
+            .ForeColor = Color.FromArgb(108, 117, 125),
+            .Location = New Point(0, 40),
+            .Size = New Size(400, 20)
+        }
+
+        Dim lblInfo2 As New Label With {
+            .Text = "• Deskripsi harus menjelaskan latar belakang dan tujuan penelitian",
+            .Font = New Font("Segoe UI", 10),
+            .ForeColor = Color.FromArgb(108, 117, 125),
+            .Location = New Point(0, 65),
+            .Size = New Size(500, 20)
+        }
+
+        Dim lblInfo3 As New Label With {
+            .Text = "• Status pengajuan akan diverifikasi oleh admin",
+            .Font = New Font("Segoe UI", 10),
+            .ForeColor = Color.FromArgb(108, 117, 125),
+            .Location = New Point(0, 90),
+            .Size = New Size(400, 20)
+        }
+
+        infoPanel.Controls.Add(lblInfoTitle)
+        infoPanel.Controls.Add(lblInfo1)
+        infoPanel.Controls.Add(lblInfo2)
+        infoPanel.Controls.Add(lblInfo3)
+
+        contentPanel.Controls.Add(infoPanel)
+
+        mainPanel.Controls.Add(contentPanel)
+        Me.Controls.Add(mainPanel)
     End Sub
 
-    Private Sub LoadPengajuan()
+    Private Sub CheckExistingTA()
         Try
-            Dim query As String = "SELECT * FROM tugas_akhir WHERE nim=? ORDER BY id_ta DESC LIMIT 1"
-            cmd = New OdbcCommand(query, conn)
-            cmd.Parameters.AddWithValue("@nim", nim_login)
+            cmd = New OdbcCommand("SELECT id_ta, judul_ta, deskripsi, status FROM tugas_akhir WHERE nim = ?", conn)
+            cmd.Parameters.AddWithValue("@nim", nim)
+
             dr = cmd.ExecuteReader()
-
             If dr.Read() Then
-                txtJudul.Text = dr("judul_ta").ToString()
-                txtDeskripsi.Text = dr("deskripsi").ToString()
-                lblKetStatus.Text = dr("status").ToString()
+                ' Mahasiswa sudah memiliki TA
+                Dim status = dr("status").ToString()
+                Dim judul = dr("judul_ta").ToString()
+                Dim deskripsi = If(dr("deskripsi") Is DBNull.Value, "", dr("deskripsi").ToString())
 
-                Select Case dr("status").ToString()
-                    Case "Diajukan"
-                        panelStatus.BackColor = Color.FromArgb(255, 249, 196) ' kuning
-                        btnAjukan.Enabled = False
-                        btnBatal.Visible = True
-                    Case "Ditolak"
-                        panelStatus.BackColor = Color.FromArgb(239, 154, 154) ' merah
-                        btnAjukan.Enabled = True
-                        btnBatal.Visible = False
-                    Case "Dibimbing"
-                        panelStatus.BackColor = Color.FromArgb(179, 229, 252) ' biru
-                        btnAjukan.Enabled = False
-                        btnBatal.Visible = False
-                    Case "Selesai"
-                        panelStatus.BackColor = Color.FromArgb(200, 230, 201) ' hijau
-                        btnAjukan.Enabled = False
-                        btnBatal.Visible = False
-                    Case Else
-                        panelStatus.BackColor = Color.LightGray
-                End Select
+                ShowStatusInfo(status, judul, deskripsi)
+
+                ' Nonaktifkan form jika status bukan "Diajukan"
+                If status <> "Diajukan" Then
+                    DisableForm()
+                End If
             Else
-                lblKetStatus.Text = "Belum Mengajukan"
-                panelStatus.BackColor = Color.LightGray
+                ' Mahasiswa belum memiliki TA, form aktif
+                EnableForm()
             End If
             dr.Close()
 
         Catch ex As Exception
-            MessageBox.Show("Kesalahan saat memuat data pengajuan: " & ex.Message)
+            MessageBox.Show("Error checking existing TA: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    Private Sub btnAjukan_Click(sender As Object, e As EventArgs)
+    Private Sub ShowStatusInfo(status As String, judul As String, deskripsi As String)
+        panelStatus.Visible = True
+
+        Select Case status
+            Case "Diajukan"
+                lblStatus.Text = "✅ Tugas Akhir Anda telah diajukan dan sedang menunggu verifikasi."
+                panelStatus.BackColor = Color.FromArgb(212, 237, 218) ' Hijau muda
+                lblStatus.ForeColor = Color.FromArgb(21, 87, 36)
+
+                ' Isi form dengan data yang sudah ada
+                txtJudulTA.Text = judul
+                txtDeskripsiTA.Text = deskripsi
+
+            Case "Dibimbing"
+                lblStatus.Text = "📚 Tugas Akhir Anda telah disetujui dan sedang dalam proses bimbingan."
+                panelStatus.BackColor = Color.FromArgb(209, 231, 221) ' Biru muda
+                lblStatus.ForeColor = Color.FromArgb(12, 84, 96)
+
+            Case "Selesai"
+                lblStatus.Text = "🎉 Selamat! Tugas Akhir Anda telah selesai."
+                panelStatus.BackColor = Color.FromArgb(214, 233, 198) ' Hijau success
+                lblStatus.ForeColor = Color.FromArgb(60, 118, 61)
+
+            Case "Ditolak"
+                lblStatus.Text = "❌ Pengajuan Tugas Akhir Anda ditolak. Silakan ajukan kembali dengan perbaikan."
+                panelStatus.BackColor = Color.FromArgb(248, 215, 218) ' Merah muda
+                lblStatus.ForeColor = Color.FromArgb(114, 28, 36)
+
+                ' Enable form untuk pengajuan ulang
+                EnableForm()
+        End Select
+    End Sub
+
+    Private Sub EnableForm()
+        txtJudulTA.Enabled = True
+        txtDeskripsiTA.Enabled = True
+        btnSubmit.Enabled = True
+        btnReset.Enabled = True
+
+        txtJudulTA.BackColor = Color.White
+        txtDeskripsiTA.BackColor = Color.White
+    End Sub
+
+    Private Sub DisableForm()
+        txtJudulTA.Enabled = False
+        txtDeskripsiTA.Enabled = False
+        btnSubmit.Enabled = False
+        btnReset.Enabled = False
+
+        txtJudulTA.BackColor = Color.FromArgb(248, 249, 250)
+        txtDeskripsiTA.BackColor = Color.FromArgb(248, 249, 250)
+    End Sub
+
+    Private Sub btnSubmit_Click(sender As Object, e As EventArgs)
+        If ValidateForm() Then
+            SubmitTA()
+        End If
+    End Sub
+
+    Private Sub btnReset_Click(sender As Object, e As EventArgs)
+        ResetForm()
+    End Sub
+
+    Private Function ValidateForm() As Boolean
+        If String.IsNullOrWhiteSpace(txtJudulTA.Text) Then
+            MessageBox.Show("Judul Tugas Akhir harus diisi!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtJudulTA.Focus()
+            Return False
+        End If
+
+        If String.IsNullOrWhiteSpace(txtDeskripsiTA.Text) Then
+            MessageBox.Show("Deskripsi Tugas Akhir harus diisi!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtDeskripsiTA.Focus()
+            Return False
+        End If
+
+        If txtJudulTA.Text.Length < 10 Then
+            MessageBox.Show("Judul Tugas Akhir minimal 10 karakter!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtJudulTA.Focus()
+            Return False
+        End If
+
+        If txtDeskripsiTA.Text.Length < 50 Then
+            MessageBox.Show("Deskripsi Tugas Akhir minimal 50 karakter!", "Validasi Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtDeskripsiTA.Focus()
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    Private Sub SubmitTA()
         Try
-            If txtJudul.Text.Trim() = "" Or txtDeskripsi.Text.Trim() = "" Then
-                MessageBox.Show("Isi judul dan deskripsi terlebih dahulu!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Return
+            ' Cek apakah sudah ada TA
+            cmd = New OdbcCommand("SELECT id_ta FROM tugas_akhir WHERE nim = ?", conn)
+            cmd.Parameters.AddWithValue("@nim", nim)
+
+            Dim existingId = cmd.ExecuteScalar()
+
+            If existingId IsNot Nothing Then
+                ' Update TA yang sudah ada (untuk status Ditolak atau revisi)
+                cmd = New OdbcCommand("UPDATE tugas_akhir SET judul_ta = ?, deskripsi = ?, status = 'Diajukan', tanggal_daftar = ? WHERE nim = ?", conn)
+                cmd.Parameters.AddWithValue("@judul", txtJudulTA.Text.Trim())
+                cmd.Parameters.AddWithValue("@deskripsi", txtDeskripsiTA.Text.Trim())
+                cmd.Parameters.AddWithValue("@tanggal", DateTime.Now.ToString("yyyy-MM-dd"))
+                cmd.Parameters.AddWithValue("@nim", nim)
+            Else
+                ' Insert TA baru
+                cmd = New OdbcCommand("INSERT INTO tugas_akhir (nim, judul_ta, deskripsi, tanggal_daftar, status) VALUES (?, ?, ?, ?, 'Diajukan')", conn)
+                cmd.Parameters.AddWithValue("@nim", nim)
+                cmd.Parameters.AddWithValue("@judul", txtJudulTA.Text.Trim())
+                cmd.Parameters.AddWithValue("@deskripsi", txtDeskripsiTA.Text.Trim())
+                cmd.Parameters.AddWithValue("@tanggal", DateTime.Now.ToString("yyyy-MM-dd"))
             End If
 
-            Dim query As String = "INSERT INTO tugas_akhir (nim, judul_ta, deskripsi, status, tanggal_daftar) VALUES (?, ?, ?, 'Diajukan', CURDATE())"
-            cmd = New OdbcCommand(query, conn)
-            cmd.Parameters.AddWithValue("@nim", nim_login)
-            cmd.Parameters.AddWithValue("@judul_ta", txtJudul.Text)
-            cmd.Parameters.AddWithValue("@deskripsi", txtDeskripsi.Text)
-            cmd.ExecuteNonQuery()
+            Dim result = cmd.ExecuteNonQuery()
 
-            MessageBox.Show("Judul Tugas Akhir berhasil diajukan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            LoadPengajuan()
+            If result > 0 Then
+                MessageBox.Show("Tugas Akhir berhasil diajukan! Silakan tunggu verifikasi dari admin.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-        Catch ex As Exception
-            MessageBox.Show("Kesalahan saat mengajukan TA: " & ex.Message)
-        End Try
-    End Sub
+                ' Update status panel
+                panelStatus.Visible = True
+                lblStatus.Text = "✅ Tugas Akhir Anda telah diajukan dan sedang menunggu verifikasi."
+                panelStatus.BackColor = Color.FromArgb(212, 237, 218)
+                lblStatus.ForeColor = Color.FromArgb(21, 87, 36)
 
-    Private Sub btnBatal_Click(sender As Object, e As EventArgs)
-        Try
-            Dim konfirmasi As DialogResult = MessageBox.Show("Apakah Anda yakin ingin membatalkan pengajuan?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-            If konfirmasi = DialogResult.Yes Then
-                Dim query As String = "DELETE FROM tugas_akhir WHERE nim=? AND status='Diajukan'"
-                cmd = New OdbcCommand(query, conn)
-                cmd.Parameters.AddWithValue("@nim", nim_login)
-                cmd.ExecuteNonQuery()
-
-                MessageBox.Show("Pengajuan berhasil dibatalkan.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                LoadPengajuan()
+                ' Nonaktifkan form setelah pengajuan berhasil
+                DisableForm()
+            Else
+                MessageBox.Show("Gagal mengajukan Tugas Akhir. Silakan coba lagi.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End If
+
         Catch ex As Exception
-            MessageBox.Show("Kesalahan saat membatalkan pengajuan: " & ex.Message)
+            MessageBox.Show("Error submitting TA: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
+    Private Sub ResetForm()
+        If MessageBox.Show("Apakah Anda yakin ingin mereset form? Semua data yang telah diisi akan hilang.", "Konfirmasi Reset", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            txtJudulTA.Text = ""
+            txtDeskripsiTA.Text = ""
+            txtJudulTA.Focus()
+        End If
+    End Sub
+
+    ' Method untuk refresh data (bisa dipanggil dari parent form)
+    Public Sub RefreshData()
+        CheckExistingTA()
+    End Sub
 End Class

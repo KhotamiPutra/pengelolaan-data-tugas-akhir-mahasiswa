@@ -74,10 +74,22 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="bimbingan.Designer.vb">
+      <DependentUpon>bimbingan.vb</DependentUpon>
+    </Compile>
+    <Compile Include="bimbingan.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="dashboard.Designer.vb">
       <DependentUpon>dashboard.vb</DependentUpon>
     </Compile>
     <Compile Include="dashboard.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="dashboard_mhs.Designer.vb">
+      <DependentUpon>dashboard_mhs.vb</DependentUpon>
+    </Compile>
+    <Compile Include="dashboard_mhs.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="data_dosen.Designer.vb">
@@ -163,6 +175,24 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="penetapan_pembimbing.Designer.vb">
+      <DependentUpon>penetapan_pembimbing.vb</DependentUpon>
+    </Compile>
+    <Compile Include="penetapan_pembimbing.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="pengajuan_ta.Designer.vb">
+      <DependentUpon>pengajuan_ta.vb</DependentUpon>
+    </Compile>
+    <Compile Include="pengajuan_ta.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="riwayat.Designer.vb">
+      <DependentUpon>riwayat.vb</DependentUpon>
+    </Compile>
+    <Compile Include="riwayat.vb">
+      <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>

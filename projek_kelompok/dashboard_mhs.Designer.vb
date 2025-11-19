@@ -22,16 +22,8 @@ Partial Class dashboard_mhs
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.SuspendLayout()
-        '
-        'dashboard_mhs
-        '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
+        components = New System.ComponentModel.Container()
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.Name = "dashboard_mhs"
-        Me.Size = New System.Drawing.Size(791, 556)
-        Me.ResumeLayout(False)
-
     End Sub
 
 End Class
